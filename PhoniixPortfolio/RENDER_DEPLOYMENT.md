@@ -96,20 +96,48 @@ Render provides built-in monitoring for:
 
 ### Common Issues
 
-1. **Build Fails**
+1. **Build Fails with "Exited with status 127"**
+   - This error means the Maven wrapper doesn't have execute permissions
+   - **Solution 1**: Use the updated render.yaml with `chmod +x ./mvnw` command
+   - **Solution 2**: Use render-alternative.yaml which uses Maven directly
+   - **Solution 3**: Manually set build command to `chmod +x ./mvnw && ./mvnw clean package -DskipTests`
+
+2. **Build Fails**
    - Check that Java 17 is available
    - Verify all dependencies are resolved
    - Check the build logs in Render dashboard
 
-2. **Application Won't Start**
+3. **Application Won't Start**
    - Verify the JAR file is created correctly
    - Check the start command in render.yaml
    - Review application logs
 
-3. **Health Check Fails**
+4. **Health Check Fails**
    - Ensure Spring Boot Actuator is included
    - Check that the health endpoint is accessible
    - Verify the application is running on the correct port
+
+### Fixing Status 127 Error
+
+If you get "Exited with status 127", try these solutions in order:
+
+**Option 1: Use Updated render.yaml**
+The current render.yaml includes `chmod +x ./mvnw` to fix permissions.
+
+**Option 2: Use Alternative Configuration**
+Rename `render-alternative.yaml` to `render.yaml` and use Maven directly instead of the wrapper.
+
+**Option 3: Manual Build Command**
+In Render dashboard, set the build command to:
+```
+chmod +x ./mvnw && ./mvnw clean package -DskipTests
+```
+
+**Option 4: Use Maven Directly**
+In Render dashboard, set the build command to:
+```
+mvn clean package -DskipTests
+```
 
 ### Logs
 

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Phoniix Portfolio</title>
+    <link rel="stylesheet" href="/css/main.css" />
+    <!-- Three.js for 3D logo -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <!-- EmailJS SDK -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  </head>
+  <body>
+    <!-- Cutscene Overlay -->
+    <div id="cutscene-overlay" class="cutscene-overlay">
+      <div class="cutscene-content">
+        <div class="text-container">
+          <div class="intro-text">Hi, I am</div>
+          <div class="name-container">
+            <span class="name-text" id="name-display">Phoniix</span>
+            <span class="matrix-overlay" id="matrix-overlay"></span>
+          </div>
+          <div class="greeting-text" id="greeting-text">Nice to meet you</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav id="main-nav" class="main-nav">
+      <div class="nav-container">
+        <a href="/" class="nav-logo" data-link><img src="/images/logo.svg" alt="Phoniix Logo"></a>
+        <ul class="nav-menu">
+          <li><a href="/" class="nav-link" data-link>Home</a></li>
+          <li><a href="/about" class="nav-link" data-link>About</a></li>
+          <li><a href="/projects" class="nav-link" data-link>Projects</a></li>
+          <li><a href="/contact" class="nav-link" data-link>Contact</a></li>
+        </ul>
+        <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">
+          <span class="theme-icon sun">☀️</span>
+          <span class="theme-icon moon">🌙</span>
+        </button>
+      </div>
+    </nav>
+
+    <!-- Main Content Container -->
+    <main id="app" class="app-container">
+      <!-- Dynamic content will be loaded here -->
+    </main>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+      <p>&copy; 2025 Phoniix. All rights reserved.</p>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="/js/router.js"></script>
+    <script src="/js/main.js"></script>
+  </body>
+</html>

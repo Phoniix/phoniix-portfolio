@@ -1,0 +1,681 @@
+<section class="admin-section">
+  <div id="admin-access-check" style="display: none;">
+    <div style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+      <h2>🔒 Access Denied</h2>
+      <p>Admin access is not authorized.</p>
+      <a href="/" class="btn btn-primary">Return to Home</a>
+    </div>
+  </div>
+  <div class="admin-container">
+    <div class="admin-header">
+      <div>
+        <h1 class="admin-title">Project Management</h1>
+        <p class="admin-subtitle">Manage your portfolio projects</p>
+      </div>
+      <div class="admin-actions">
+        <button id="import-json-btn" class="btn btn-secondary">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          Import JSON
+        </button>
+        <button id="export-json-btn" class="btn btn-secondary">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="17 8 12 3 7 8"></polyline>
+            <line x1="12" y1="3" x2="12" y2="15"></line>
+          </svg>
+          Export JSON
+        </button>
+        <button id="add-project-btn" class="btn btn-primary">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          Add Project
+        </button>
+      </div>
+    </div>
+
+    <!-- Instructions Banner -->
+    <div class="instructions-banner">
+      <h3>📋 Quick Guide</h3>
+      <ol>
+        <li><strong>Add/Edit</strong> projects using the form below</li>
+        <li><strong>Upload images</strong> - they'll be available for download</li>
+        <li><strong>Download images</strong> and place them in <code>/images/projects/</code> folder</li>
+        <li><strong>Export JSON</strong> when done and replace the old <code>projects.json</code> file</li>
+      </ol>
+    </div>
+
+    <!-- Pending Images to Download -->
+    <div id="pending-images" class="pending-images" style="display: none;">
+      <h3>📥 Images to Download</h3>
+      <p>Download these images and place them in <code>src/main/resources/static/images/projects/</code></p>
+      <div id="pending-images-list"></div>
+      <button id="download-all-images" class="btn btn-primary">Download All Images</button>
+    </div>
+
+    <!-- Projects List -->
+    <div class="projects-list-container">
+      <h2>Your Projects</h2>
+      <div id="admin-projects-list" class="admin-projects-list">
+        <div class="loading-spinner">
+          <div class="spinner"></div>
+          <p>Loading projects...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Project Form Modal -->
+  <div id="project-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modal-title">Add New Project</h2>
+        <span class="close">&times;</span>
+      </div>
+      
+      <form id="project-form">
+        <input type="hidden" id="project-id">
+        <input type="hidden" id="project-created-at">
+        
+        <div class="form-row">
+          <div class="form-group full-width">
+            <label for="title">Project Title *</label>
+            <input type="text" id="title" required placeholder="My Awesome Project">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group full-width">
+            <label for="description">Description *</label>
+            <textarea id="description" rows="4" required placeholder="Brief description of your project..."></textarea>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group full-width">
+            <label for="technologies">Technologies (comma-separated) *</label>
+            <input type="text" id="technologies" required placeholder="React, Node.js, MongoDB">
+            <small>Separate multiple technologies with commas</small>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group full-width">
+            <label for="image-upload">Project Image</label>
+            <div class="image-upload-area" id="image-upload-area">
+              <input type="file" id="image-upload" accept="image/*" style="display: none;">
+              <div class="upload-placeholder">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                  <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                  <polyline points="21 15 16 10 5 21"></polyline>
+                </svg>
+                <p>Click to upload or drag and drop</p>
+                <small>PNG, JPG, WebP up to 10MB</small>
+              </div>
+            </div>
+            <div id="image-preview" class="image-preview"></div>
+            <input type="text" id="image-url" placeholder="/images/projects/filename.jpg" style="margin-top: 10px;">
+            <small>Image path will be auto-generated after upload</small>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="live-url">Live Demo URL</label>
+            <input type="url" id="live-url" placeholder="https://example.com">
+          </div>
+          <div class="form-group">
+            <label for="code-url">Source Code URL</label>
+            <input type="url" id="code-url" placeholder="https://github.com/username/repo">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="display-order">Display Order</label>
+            <input type="number" id="display-order" min="1" placeholder="1">
+            <small>Lower numbers appear first</small>
+          </div>
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="published" checked>
+              <span>Published (visible on site)</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" id="cancel-btn">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Project</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Hidden file input for JSON import -->
+  <input type="file" id="json-file-input" accept=".json" style="display: none;">
+</section>
+
+<script>
+// Admin access control
+document.addEventListener('DOMContentLoaded', function() {
+  const adminContainer = document.querySelector('.admin-container');
+  const adminAccessCheck = document.getElementById('admin-access-check');
+  
+  // Check if admin access is authorized
+  function checkAdminAccess() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const adminKey = urlParams.get('key');
+    const validAdminKey = 'admin2025';
+    
+    if (adminKey !== validAdminKey) {
+      // Hide admin content and show access denied
+      adminContainer.style.display = 'none';
+      adminAccessCheck.style.display = 'block';
+    } else {
+      // Show admin content and hide access denied
+      adminContainer.style.display = 'block';
+      adminAccessCheck.style.display = 'none';
+    }
+  }
+  
+  // Run the check
+  checkAdminAccess();
+  
+  // Re-check if URL parameters change
+  window.addEventListener('popstate', checkAdminAccess);
+});
+</script>
+
+<style>
+/* Admin Container */
+.admin-section {
+  min-height: 100vh;
+  padding: 2rem;
+  background: var(--bg-primary);
+}
+
+.admin-container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Admin Header */
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.admin-title {
+  font-size: 2.5rem;
+  color: var(--text-primary);
+  margin: 0 0 0.5rem 0;
+}
+
+.admin-subtitle {
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.admin-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-primary {
+  background: var(--primary-color);
+  color: white;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(233, 30, 99, 0.3);
+}
+
+.btn-secondary {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 2px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+  border-color: var(--primary-color);
+  transform: translateY(-2px);
+}
+
+.btn svg {
+  flex-shrink: 0;
+}
+
+/* Instructions Banner */
+.instructions-banner {
+  background: linear-gradient(135deg, rgba(233, 30, 99, 0.1) 0%, rgba(233, 30, 99, 0.05) 100%);
+  border: 2px solid rgba(233, 30, 99, 0.2);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.instructions-banner h3 {
+  margin: 0 0 1rem 0;
+  color: var(--text-primary);
+}
+
+.instructions-banner ol {
+  margin: 0;
+  padding-left: 1.5rem;
+  color: var(--text-secondary);
+}
+
+.instructions-banner li {
+  margin-bottom: 0.5rem;
+}
+
+.instructions-banner code {
+  background: var(--bg-secondary);
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  color: var(--primary-color);
+}
+
+/* Pending Images */
+.pending-images {
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  border: 2px solid var(--primary-color);
+}
+
+.pending-images h3 {
+  margin: 0 0 1rem 0;
+  color: var(--text-primary);
+}
+
+#pending-images-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.pending-image-item {
+  background: var(--bg-primary);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+}
+
+.pending-image-item img {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+}
+
+.pending-image-item button {
+  width: 100%;
+}
+
+/* Projects List */
+.projects-list-container h2 {
+  color: var(--text-primary);
+  margin-bottom: 1.5rem;
+}
+
+.admin-projects-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.admin-project-card {
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.admin-project-card:hover {
+  border-color: var(--primary-color);
+  transform: translateY(-2px);
+}
+
+.project-thumbnail {
+  width: 120px;
+  height: 90px;
+  border-radius: 8px;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: var(--bg-primary);
+}
+
+.project-thumbnail.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+}
+
+.project-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.project-info h3 {
+  margin: 0 0 0.5rem 0;
+  color: var(--text-primary);
+}
+
+.project-info p {
+  margin: 0 0 0.5rem 0;
+  color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.project-meta {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.project-actions-admin {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.btn-sm {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+}
+
+.btn-edit {
+  background: #007bff;
+  color: white;
+}
+
+.btn-delete {
+  background: #dc3545;
+  color: white;
+}
+
+/* Modal */
+.modal {
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-content {
+  background: var(--bg-primary);
+  border-radius: 16px;
+  max-width: 800px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2rem 2rem 1rem 2rem;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.modal-header h2 {
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.close {
+  font-size: 2rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: color 0.3s ease;
+  line-height: 1;
+}
+
+.close:hover {
+  color: var(--primary-color);
+}
+
+/* Form */
+#project-form {
+  padding: 2rem;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.form-group label {
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.form-group input,
+.form-group textarea {
+  padding: 0.75rem;
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(233, 30, 99, 0.1);
+}
+
+.form-group small {
+  margin-top: 0.25rem;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  padding: 0.75rem 0;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+/* Image Upload */
+.image-upload-area {
+  border: 3px dashed var(--border-color);
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.image-upload-area:hover {
+  border-color: var(--primary-color);
+  background: rgba(233, 30, 99, 0.05);
+}
+
+.upload-placeholder svg {
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+}
+
+.upload-placeholder p {
+  margin: 0 0 0.5rem 0;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.upload-placeholder small {
+  color: var(--text-secondary);
+}
+
+.image-preview {
+  margin-top: 1rem;
+  display: none;
+}
+
+.image-preview.show {
+  display: block;
+}
+
+.image-preview img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+}
+
+.image-preview-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+/* Form Actions */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 2px solid var(--border-color);
+}
+
+/* Loading */
+.loading-spinner {
+  text-align: center;
+  padding: 3rem;
+  color: var(--text-secondary);
+}
+
+.spinner {
+  border: 4px solid rgba(233, 30, 99, 0.1);
+  border-radius: 50%;
+  border-top: 4px solid var(--primary-color);
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .admin-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .admin-actions {
+    flex-direction: column;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-project-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .project-thumbnail {
+    width: 100%;
+    height: 150px;
+  }
+}
+</style>
+

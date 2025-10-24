@@ -1,0 +1,27 @@
+{
+  "projects": [
+    {
+      "id": 1,
+      "title": "Maxx Energy Access Portal",
+      "description": "The Enterprise Data Access Portal was a project I worked on during my internship, where I focused on building a clean, structured front-end for a secure enterprise data platform. Using HTML, CSS, and JavaScript, I developed the core layout and design system, setting it up to later connect with a Spring Boot and REST API backend. This project helped me grow a lot as a developer—I learned how to organize large-scale front-end structures, use reusable CSS variables for consistent theming, and think about scalability and security from a real-world perspective. It was a great hands-on experience that pushed me to bridge design, structure, and functionality in a professional way.",
+      "technologies": ["HTML", "CSS", "JavaScript", "Spring Boot", "REST API"],
+      "imageUrl": "/images/projects/Screenshot_46.png",
+      "liveUrl": null,
+      "codeUrl": "https://github.com/Phoniix/enterprise-data-access-portal",
+      "displayOrder": 1,
+      "published": true
+    },
+    {
+      "id": 2,
+      "title": "Cafe Website (Restaurant Template)",
+      "description": "The Coffee Template Website is a simple yet elegant front-end project I created to practice clean layout design, responsive styling, and brand presentation. It's built with HTML, CSS, and JavaScript, featuring a warm, inviting color palette inspired by coffee tones and a layout that highlights products, story, and contact sections. I focused on creating smooth navigation, balanced typography, and consistent spacing to give it a professional, café-style aesthetic. This project helped me sharpen my design sense and front-end structure skills while experimenting with creating a cohesive brand feel through color and layout.",
+      "technologies": ["HTML", "CSS", "JavaScript"],
+      "imageUrl": "/images/projects/Screenshot_53.png",
+      "liveUrl": null,
+      "codeUrl": null,
+      "displayOrder": 2,
+      "published": true
+    }
+  ]
+}
+

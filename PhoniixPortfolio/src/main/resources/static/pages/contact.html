@@ -1,0 +1,138 @@
+<section class="contact-section">
+  <div class="contact-container">
+    <div class="section-header">
+      <h1 class="section-title">Get In Touch</h1>
+      <p class="section-subtitle">Let's create something amazing together</p>
+    </div>
+
+    <div class="contact-content">
+      <!-- Contact Form -->
+      <div class="contact-form-wrapper">
+        <h2>Send Me a Message</h2>
+        <form id="contact-form" class="contact-form">
+          <div class="form-group">
+            <label for="name">Your Name</label>
+            <input 
+              type="text" 
+              id="name" 
+              name="name" 
+              placeholder="John Doe" 
+              required 
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="email">Your Email</label>
+            <input 
+              type="email" 
+              id="email" 
+              name="email" 
+              placeholder="john@example.com" 
+              required 
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="subject">Subject</label>
+            <input 
+              type="text" 
+              id="subject" 
+              name="subject" 
+              placeholder="Project Inquiry" 
+              required 
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="message">Your Message</label>
+            <textarea 
+              id="message" 
+              name="message" 
+              rows="6" 
+              placeholder="Tell me about your project..." 
+              required
+            ></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-primary">Send Message</button>
+        </form>
+      </div>
+
+      <!-- Contact Information -->
+      <div class="contact-info-wrapper">
+        <h2>Contact Information</h2>
+        <div class="contact-info">
+          <div class="info-item">
+            <div class="info-icon">📧</div>
+            <div class="info-content">
+              <h3>Email</h3>
+              <p>phoniix99@gmail.com</p>
+            </div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-icon">📱</div>
+            <div class="info-content">
+              <h3>Phone</h3>
+              <p>+1 (214) 931-8027</p>
+            </div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-icon">📍</div>
+            <div class="info-content">
+              <h3>Location</h3>
+              <p>Dallas, TX</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Social Links -->
+        <div class="social-links">
+          <h3>Follow Me</h3>
+          <div class="social-icons">
+            <a href="https://github.com/Phoniix" target="_blank" rel="noopener noreferrer" class="social-link">
+              GitHub
+            </a>
+            <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" class="social-link">
+              LinkedIn
+            </a>
+            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" class="social-link">
+              Twitter
+            </a>
+            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" class="social-link">
+              Instagram
+            </a>
+          </div>
+        </div>
+
+        <!-- Availability -->
+        <div class="availability">
+          <div class="availability-status">
+            <span class="status-indicator available"></span>
+            <span class="status-text">Available for freelance work</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Debug Panel (only visible in development) -->
+    <div id="debug-panel" class="debug-panel" style="display: none;">
+      <h3>🐛 Debug Panel</h3>
+      <div class="debug-controls">
+        <button onclick="toggleDebugPanel()" class="btn btn-sm">Hide Debug</button>
+        <button onclick="getErrorLogs()" class="btn btn-sm">View Error Logs</button>
+        <button onclick="clearErrorLogs()" class="btn btn-sm">Clear Logs</button>
+        <button onclick="testEmailJS()" class="btn btn-sm">Test EmailJS</button>
+      </div>
+      <div id="debug-output" class="debug-output"></div>
+    </div>
+    
+    <!-- Debug Toggle Button -->
+    <button id="debug-toggle" class="debug-toggle" onclick="toggleDebugPanel()" title="Toggle Debug Panel">
+      🐛
+    </button>
+  </div>
+</section>
+
+

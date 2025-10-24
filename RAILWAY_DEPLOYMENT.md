@@ -11,10 +11,12 @@ This guide will help you deploy your Phoniix Portfolio to Railway.com.
 
 ### 1. Prepare Your Repository
 
-Make sure your project is pushed to a Git repository with the following structure:
+Your project is now properly structured in the root directory:
 ```
-PhoniixPortfolio/
+phoniix-portfolio/
 ├── pom.xml
+├── mvnw
+├── mvnw.cmd
 ├── src/
 │   └── main/
 │       ├── java/
@@ -23,8 +25,11 @@ PhoniixPortfolio/
 │           ├── application.properties
 │           ├── application-prod.properties
 │           └── static/
+├── railway.json
 └── README.md
 ```
+
+**Note**: The Java project files have been moved to the root directory so Railway can properly detect your Java project.
 
 ### 2. Create a New Project on Railway
 

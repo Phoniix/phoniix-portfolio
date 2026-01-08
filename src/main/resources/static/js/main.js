@@ -64,25 +64,100 @@ function initCutscene() {
     return;
   }
 
-  // SKIP CUTSCENE ON MOBILE DEVICES
-  const isMobile = window.innerWidth <= 768; // Detect mobile/tablet
-  if (isMobile) {
-    const overlay = document.getElementById('cutscene-overlay');
-    if (overlay) {
-      overlay.classList.add('hidden');
-      sessionStorage.setItem('cutsceneShown', 'true');
-    }
-    console.log('📱 Mobile detected - skipping cutscene');
-    return;
-  }
-
+  // Detect mobile/tablet
+  const isMobile = window.innerWidth <= 768;
+  
   const nameDisplay = document.getElementById('name-display');
   const matrixOverlay = document.getElementById('matrix-overlay');
   const overlay = document.getElementById('cutscene-overlay');
   const greetingText = document.getElementById('greeting-text');
   const introText = document.querySelector('.intro-text');
 
-  if (!nameDisplay || !matrixOverlay || !overlay || !greetingText || !introText) return;
+  if (!nameDisplay || !overlay || !greetingText || !introText) return;
+
+  // Hide matrix overlay on mobile (not used)
+  if (isMobile && matrixOverlay) {
+    matrixOverlay.style.display = 'none';
+  }
+
+  // Use lightweight mobile animation or full desktop animation
+  if (isMobile) {
+    console.log('📱 Mobile detected - using lightweight animation');
+    startMobileCutscene(nameDisplay, overlay, greetingText, introText);
+  } else {
+    console.log('🖥️ Desktop detected - using full animation');
+    startDesktopCutscene(nameDisplay, matrixOverlay, overlay, greetingText, introText);
+  }
+}
+
+/**
+ * Lightweight mobile cutscene animation (optimized for performance)
+ * Uses simple fades instead of heavy matrix effects and complex animations
+ */
+function startMobileCutscene(nameDisplay, overlay, greetingText, introText) {
+  // Set initial styles for performance (use CSS classes for better rendering)
+  nameDisplay.textContent = 'Sean Smith';
+  nameDisplay.style.color = '#E91E63';
+  nameDisplay.style.fontWeight = 'bold';
+  nameDisplay.style.textShadow = '0 0 20px rgba(233, 30, 99, 0.6)';
+  
+  // Use requestAnimationFrame for smoother animations
+  requestAnimationFrame(() => {
+    // Show intro text after 0.5s
+    setTimeout(() => {
+      introText.style.transition = 'opacity 0.8s ease-out';
+      introText.style.opacity = '1';
+    }, 500);
+
+    // Show name after 1.5s with simple fade (no typewriter effect on mobile)
+    setTimeout(() => {
+      nameDisplay.style.transition = 'opacity 0.8s ease-out';
+      nameDisplay.style.opacity = '1';
+    }, 1500);
+
+    // Show greeting after name appears
+    setTimeout(() => {
+      greetingText.style.transition = 'opacity 0.6s ease-out';
+      greetingText.style.opacity = '1';
+    }, 2300);
+
+    // Fade out everything and close after 3.5 seconds (shorter than desktop)
+    setTimeout(() => {
+      // Fade out intro and greeting simultaneously
+      introText.style.transition = 'opacity 0.5s ease-out';
+      greetingText.style.transition = 'opacity 0.5s ease-out';
+      
+      requestAnimationFrame(() => {
+        introText.style.opacity = '0';
+        greetingText.style.opacity = '0';
+      });
+
+      // Fade out name slightly after
+      setTimeout(() => {
+        nameDisplay.style.transition = 'opacity 0.4s ease-out';
+        nameDisplay.style.opacity = '0';
+      }, 200);
+
+      // Fade out overlay
+      setTimeout(() => {
+        overlay.classList.add('fade-out');
+      }, 700);
+
+      // Hide overlay completely
+      setTimeout(() => {
+        overlay.classList.add('hidden');
+        sessionStorage.setItem('cutsceneShown', 'true');
+        console.log('📱 Mobile cutscene complete!');
+      }, 1700);
+    }, 3500);
+  });
+}
+
+/**
+ * Full desktop cutscene animation (original with all effects)
+ */
+function startDesktopCutscene(nameDisplay, matrixOverlay, overlay, greetingText, introText) {
+  if (!matrixOverlay) return;
 
   // Matrix characters for the effect
   const matrixChars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
@@ -496,11 +571,43 @@ function init3DLogo() {
 
   // Main scene setup
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(75, 400/400, 0.1, 1000);
+  
+  // Function to get responsive size based on container
+  function getLogoSize() {
+    const containerRect = container.getBoundingClientRect();
+    // Use actual container size or fallback to 400px
+    const width = containerRect.width || container.offsetWidth || 400;
+    const height = containerRect.height || container.offsetHeight || 400;
+    const containerSize = Math.min(width, height);
+    // Cap at 400px for desktop, but allow smaller for mobile
+    return Math.min(Math.max(containerSize, 200), 400);
+  }
+  
+  // Get initial size (wait a tick for layout to settle)
+  let finalSize = getLogoSize();
+  if (finalSize < 200) {
+    // If container not ready, use computed style or default
+    const computedStyle = window.getComputedStyle(container);
+    const width = parseInt(computedStyle.width) || 400;
+    const height = parseInt(computedStyle.height) || 400;
+    finalSize = Math.min(Math.min(width, height), 400);
+  }
+  
+  const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000); // Aspect ratio 1:1
   const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
   
-  renderer.setSize(400, 400);
+  // Set renderer size to match container
+  renderer.setSize(finalSize, finalSize);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Cap pixel ratio for performance
   renderer.setClearColor(0x000000, 0);
+  
+  // Center the canvas element with CSS
+  renderer.domElement.style.width = '100%';
+  renderer.domElement.style.height = '100%';
+  renderer.domElement.style.display = 'block';
+  renderer.domElement.style.margin = '0 auto';
+  renderer.domElement.style.position = 'relative';
+  
   container.appendChild(renderer.domElement);
 
   // Lighting for main scene - Theme-aware lighting
@@ -714,6 +821,21 @@ function init3DLogo() {
     const fidgetHint = document.getElementById('logo-fidget-hint');
     let hintHidden = false;
     
+    // Detect if device supports touch
+    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    
+    // Update hint text based on device type
+    if (fidgetHint) {
+      const hintLabel = fidgetHint.querySelector('.fidget-label');
+      if (hintLabel) {
+        if (isTouchDevice) {
+          hintLabel.textContent = 'Touch and drag to spin';
+        } else {
+          hintLabel.textContent = 'Drag to spin • Hover to tilt';
+        }
+      }
+    }
+    
     // Function to hide the hint on first interaction
     function hideHintOnFirstInteraction() {
       if (!hintHidden && fidgetHint) {
@@ -722,75 +844,99 @@ function init3DLogo() {
       }
     }
     
-    // Hover interaction (subtle tilt)
-    container.addEventListener('mousemove', (e) => {
-      if (isDragging) return; // Don't do hover effect while dragging
-      
-      // Hide hint on first hover
-      hideHintOnFirstInteraction();
-      
-      isMouseMoving = true;
-      
-      // Clear any existing timeout
-      clearTimeout(mouseIdleTimeout);
-      
-      const rect = container.getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-      
-      const deltaX = e.clientX - centerX;
-      const deltaY = e.clientY - centerY;
-      
-      // Limit rotation to 30 degrees maximum (0.52 radians)
-      targetRotationY = Math.max(-0.52, Math.min(0.52, (deltaX / rect.width) * 0.52));
-      targetRotationX = Math.max(-0.52, Math.min(0.52, -(deltaY / rect.height) * 0.52));
-      
-      // Set timeout to return to idle animation
-      mouseIdleTimeout = setTimeout(() => {
-        isMouseMoving = false;
-        targetRotationX = 0;
-        targetRotationY = 0;
-      }, 1000);
-    });
+    // Function to get coordinates from event (works for both mouse and touch)
+    function getEventCoordinates(e) {
+      if (e.touches && e.touches.length > 0) {
+        return {
+          x: e.touches[0].clientX,
+          y: e.touches[0].clientY
+        };
+      }
+      return {
+        x: e.clientX,
+        y: e.clientY
+      };
+    }
+    
+    // Hover interaction (subtle tilt) - Desktop only
+    if (!isTouchDevice) {
+      container.addEventListener('mousemove', (e) => {
+        if (isDragging) return; // Don't do hover effect while dragging
+        
+        // Hide hint on first hover
+        hideHintOnFirstInteraction();
+        
+        isMouseMoving = true;
+        
+        // Clear any existing timeout
+        clearTimeout(mouseIdleTimeout);
+        
+        const rect = container.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+        
+        const deltaX = e.clientX - centerX;
+        const deltaY = e.clientY - centerY;
+        
+        // Limit rotation to 30 degrees maximum (0.52 radians)
+        targetRotationY = Math.max(-0.52, Math.min(0.52, (deltaX / rect.width) * 0.52));
+        targetRotationX = Math.max(-0.52, Math.min(0.52, -(deltaY / rect.height) * 0.52));
+        
+        // Set timeout to return to idle animation
+        mouseIdleTimeout = setTimeout(() => {
+          isMouseMoving = false;
+          targetRotationX = 0;
+          targetRotationY = 0;
+        }, 1000);
+      });
+    }
 
-    // Click and drag to spin
-    container.addEventListener('mousedown', (e) => {
-      // Hide hint on first drag
+    // Function to start dragging
+    function startDrag(clientX, clientY) {
       hideHintOnFirstInteraction();
       
       isDragging = true;
       isMouseMoving = false;
-      previousMouseX = e.clientX;
-      previousMouseY = e.clientY;
+      previousMouseX = clientX;
+      previousMouseY = clientY;
       velocityX = 0;
       velocityY = 0;
       clearTimeout(dragIdleTimeout);
-      container.style.cursor = 'grabbing';
-    });
+      
+      if (!isTouchDevice) {
+        container.style.cursor = 'grabbing';
+      }
+    }
 
-    window.addEventListener('mousemove', (e) => {
+    // Function to handle drag move
+    function handleDragMove(clientX, clientY) {
       if (!isDragging) return;
 
-      const deltaX = e.clientX - previousMouseX;
-      const deltaY = e.clientY - previousMouseY;
+      const deltaX = clientX - previousMouseX;
+      const deltaY = clientY - previousMouseY;
 
-      // Update rotation based on drag distance (increased sensitivity)
-      manualRotationY += deltaX * 0.01;
-      manualRotationX -= deltaY * 0.01;
+      // Update rotation based on drag distance (increased sensitivity for mobile)
+      const sensitivity = isTouchDevice ? 0.015 : 0.01;
+      manualRotationY += deltaX * sensitivity;
+      manualRotationX -= deltaY * sensitivity;
 
       // Calculate velocity for momentum
-      velocityX = deltaY * 0.01;
-      velocityY = deltaX * 0.01;
+      velocityX = deltaY * sensitivity;
+      velocityY = deltaX * sensitivity;
 
-      previousMouseX = e.clientX;
-      previousMouseY = e.clientY;
+      previousMouseX = clientX;
+      previousMouseY = clientY;
       lastDragTime = Date.now();
-    });
+    }
 
-    window.addEventListener('mouseup', () => {
+    // Function to end dragging
+    function endDrag() {
       if (isDragging) {
         isDragging = false;
-        container.style.cursor = 'grab';
+        
+        if (!isTouchDevice) {
+          container.style.cursor = 'grab';
+        }
         
         // Check if there was recent movement for momentum
         const timeSinceLastDrag = Date.now() - lastDragTime;
@@ -809,10 +955,52 @@ function init3DLogo() {
           manualRotationY = 0;
         }, 5000);
       }
+    }
+
+    // Mouse events (Desktop)
+    container.addEventListener('mousedown', (e) => {
+      const coords = getEventCoordinates(e);
+      startDrag(coords.x, coords.y);
     });
 
-    // Set initial cursor style
-    container.style.cursor = 'grab';
+    window.addEventListener('mousemove', (e) => {
+      const coords = getEventCoordinates(e);
+      handleDragMove(coords.x, coords.y);
+    });
+
+    window.addEventListener('mouseup', () => {
+      endDrag();
+    });
+
+    // Touch events (Mobile)
+    container.addEventListener('touchstart', (e) => {
+      e.preventDefault(); // Prevent scrolling
+      const coords = getEventCoordinates(e);
+      startDrag(coords.x, coords.y);
+    }, { passive: false });
+
+    window.addEventListener('touchmove', (e) => {
+      if (!isDragging) return;
+      e.preventDefault(); // Prevent scrolling while dragging
+      const coords = getEventCoordinates(e);
+      handleDragMove(coords.x, coords.y);
+    }, { passive: false });
+
+    window.addEventListener('touchend', (e) => {
+      if (isDragging) {
+        e.preventDefault(); // Prevent click/tap after drag
+      }
+      endDrag();
+    }, { passive: false });
+
+    window.addEventListener('touchcancel', () => {
+      endDrag();
+    });
+
+    // Set initial cursor style (Desktop only)
+    if (!isTouchDevice) {
+      container.style.cursor = 'grab';
+    }
   }
 
   // Handle window resize for background (only add once)
@@ -825,6 +1013,36 @@ function init3DLogo() {
       }
     });
   }
+
+  // Handle window resize for main logo (responsive sizing)
+  // Store references in a way accessible to resize handler
+  const logoContainer = container;
+  const logoRenderer = renderer;
+  const logoCamera = camera;
+  
+  let resizeTimeout;
+  window.addEventListener('resize', () => {
+    // Debounce resize events for better performance
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+      if (logoContainer && logoRenderer && logoCamera) {
+        // Get new container size
+        const containerRect = logoContainer.getBoundingClientRect();
+        const width = containerRect.width || logoContainer.offsetWidth || 400;
+        const height = containerRect.height || logoContainer.offsetHeight || 400;
+        const containerSize = Math.min(width, height);
+        const newSize = Math.min(Math.max(containerSize, 200), 400);
+        
+        // Update renderer size
+        logoRenderer.setSize(newSize, newSize);
+        logoRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        
+        // Camera aspect ratio is 1:1 (square), so no need to update
+        // But update projection matrix just in case
+        logoCamera.updateProjectionMatrix();
+      }
+    }, 100);
+  });
 
   // Animation loop
   function animate() {

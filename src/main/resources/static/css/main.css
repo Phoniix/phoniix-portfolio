@@ -640,6 +640,11 @@ section {
   padding: 0;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   transition: all 0.3s ease;
+  /* Enable touch interactions on mobile */
+  touch-action: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .hero-placeholder:hover {
@@ -656,12 +661,27 @@ section {
   overflow: hidden;
   border-radius: var(--radius-xl);
   background: radial-gradient(circle, var(--primary-20) 0%, transparent 70%);
+  /* Enable touch interactions on mobile */
+  touch-action: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 /* Ensure the Three.js canvas fits properly */
 #logo-3d-container canvas {
   border-radius: var(--radius-xl);
   display: block;
+  /* Center the canvas */
+  margin: 0 auto;
+  /* Enable touch interactions on canvas */
+  touch-action: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  pointer-events: auto;
+  /* Ensure canvas is centered within container */
+  position: relative;
 }
 
 /* ============================================
@@ -1017,7 +1037,11 @@ section {
 }
 
 .project-card {
-  background-color: var(--bg-primary);
+  /* Glassmorphism effect using design variables */
+  background: var(--bg-primary-60);
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  border: 1px solid var(--primary-20);
   border-radius: var(--radius-lg);
   overflow: hidden;
   box-shadow: var(--shadow-md);
@@ -1027,6 +1051,21 @@ section {
 .project-card:hover {
   transform: translateY(-5px);
   box-shadow: var(--shadow-xl);
+  background: var(--bg-primary-80);
+  border-color: var(--primary-40);
+}
+
+/* Dark mode glassmorphism for project cards */
+[data-theme="dark"] .project-card {
+  background: var(--bg-dark-60);
+  border: 1px solid var(--primary-20);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .project-card:hover {
+  background: var(--bg-dark-80);
+  border-color: var(--primary-40);
+  box-shadow: 0 12px 48px var(--primary-20);
 }
 
 .project-image {
@@ -1624,32 +1663,143 @@ section {
     font-size: 0.875rem;
   }
 
+  /* Hero Section Mobile Fixes */
   .hero-container {
     grid-template-columns: 1fr;
     text-align: center;
+    gap: var(--spacing-xl);
+    padding: 0;
+  }
+
+  .hero-content {
+    padding: var(--spacing-xl);
+    margin: 0 auto;
+    width: 100%;
   }
 
   .hero-title {
     font-size: 2.5rem;
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .hero-subtitle {
+    font-size: 1.25rem;
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .hero-description {
+    font-size: 1rem;
+    margin-bottom: var(--spacing-lg);
+    text-align: center;
+    max-width: 100%;
   }
 
   .hero-cta {
     justify-content: center;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+  }
+
+  .hero-visual {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto;
+  }
+
+  .hero-placeholder {
+    width: 100%;
+    max-width: 350px;
+    height: 350px;
+    margin: 0 auto;
+    /* Ensure proper centering */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* Ensure touch interactions work on mobile */
+    touch-action: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  #logo-3d-container {
+    width: 100%;
+    max-width: 350px;
+    height: 350px;
+    margin: 0 auto;
+    /* Center the canvas inside */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* Ensure touch interactions work on mobile */
+    touch-action: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  .logo-fidget-hint {
+    bottom: -70px;
+    font-size: 0.85rem;
   }
 
   .stats-container {
     grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-md);
+  }
+
+  /* About Section Mobile Fixes */
+  .about-container {
+    width: 100%;
+    padding: 0;
+  }
+
+  .about-header {
+    text-align: center;
+    margin-bottom: var(--spacing-xl);
   }
 
   .about-content {
     grid-template-columns: 1fr;
+    gap: var(--spacing-xl);
+    padding: var(--spacing-xl);
+    width: 100%;
+    margin: 0 auto;
   }
 
   .about-image {
     position: relative;
     top: 0;
-    max-width: 250px;
-    margin: 0 auto;
+    max-width: 280px;
+    width: 100%;
+    margin: 0 auto var(--spacing-lg) auto;
+    order: 1;
+  }
+
+  .about-text {
+    order: 2;
+    text-align: left;
+    width: 100%;
+  }
+
+  .about-text h2 {
+    font-size: 1.75rem;
+    text-align: center;
+    margin-bottom: var(--spacing-md);
+  }
+
+  .about-text p {
+    text-align: left;
+    font-size: 1rem;
+  }
+
+  .about-cta {
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-lg);
   }
 
   .projects-grid {
@@ -1662,6 +1812,10 @@ section {
 
   .section-title {
     font-size: 2rem;
+  }
+
+  section {
+    padding: var(--spacing-xl) var(--spacing-md);
   }
 }
 
@@ -1676,20 +1830,146 @@ section {
     gap: var(--spacing-sm);
   }
 
+  /* Hero Section - Very Small Screens */
+  .hero-container {
+    gap: var(--spacing-lg);
+    padding: 0;
+  }
+
+  .hero-content {
+    padding: var(--spacing-lg);
+  }
+
   .hero-title {
     font-size: 2rem;
+    line-height: 1.2;
+    margin-bottom: var(--spacing-xs);
   }
 
   .hero-subtitle {
-    font-size: 1.25rem;
+    font-size: 1.125rem;
+    margin-bottom: var(--spacing-xs);
+  }
+
+  .hero-description {
+    font-size: 0.95rem;
+    margin-bottom: var(--spacing-md);
+    line-height: 1.6;
+  }
+
+  .hero-cta {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .hero-cta .btn {
+    width: 100%;
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+
+  .hero-visual {
+    width: 100%;
+    padding: 0 var(--spacing-sm);
+  }
+
+  .hero-placeholder {
+    width: 100%;
+    max-width: 300px;
+    height: 300px;
+    margin: 0 auto;
+    /* Ensure proper centering */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* Ensure touch interactions work on small mobile */
+    touch-action: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  #logo-3d-container {
+    width: 100%;
+    max-width: 300px;
+    height: 300px;
+    margin: 0 auto;
+    /* Center the canvas inside */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* Ensure touch interactions work on small mobile */
+    touch-action: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  .logo-fidget-hint {
+    bottom: -60px;
+    font-size: 0.75rem;
+    width: 90%;
   }
 
   .stats-container {
     grid-template-columns: 1fr;
+    gap: var(--spacing-sm);
+  }
+
+  /* About Section - Very Small Screens */
+  .about-content {
+    padding: var(--spacing-lg);
+    gap: var(--spacing-lg);
+  }
+
+  .about-image {
+    max-width: 250px;
+    margin-bottom: var(--spacing-md);
+  }
+
+  .about-text h2 {
+    font-size: 1.5rem;
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .about-text p {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .about-highlights {
+    padding: var(--spacing-md);
+    margin: var(--spacing-lg) 0;
+  }
+
+  .about-highlights h3 {
+    font-size: 1.125rem;
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .highlights-list li {
+    font-size: 0.9rem;
+    padding: var(--spacing-xs) 0;
+  }
+
+  .highlights-list strong {
+    min-width: auto;
+    display: block;
+    margin-bottom: 0.25rem;
+  }
+
+  .about-cta {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .about-cta .btn {
+    width: 100%;
+    padding: var(--spacing-sm) var(--spacing-md);
   }
 
   section {
-    padding: var(--spacing-xl) var(--spacing-md);
+    padding: var(--spacing-lg) var(--spacing-sm);
   }
 }
 
@@ -1903,6 +2183,40 @@ section {
   .name-container {
     height: 4.5rem;
   }
+
+  /* Mobile performance optimizations */
+  .cutscene-overlay {
+    /* Use GPU acceleration for smoother animations */
+    will-change: opacity;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+  }
+
+  .intro-text,
+  .greeting-text,
+  .name-text {
+    /* Optimize for mobile rendering */
+    will-change: opacity;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    /* Reduce text shadow complexity on mobile for better performance */
+    text-shadow: 0 0 15px rgba(233, 30, 99, 0.5);
+  }
+
+  /* Disable complex animations on mobile */
+  .matrix-overlay {
+    display: none !important;
+  }
+
+  /* Simpler fade animations for mobile */
+  @keyframes fadeInText {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
 }
 
 @media (max-width: 480px) {
@@ -1921,6 +2235,12 @@ section {
   
   .name-container {
     height: 3.5rem;
+  }
+
+  /* Additional mobile optimizations for smaller screens */
+  .cutscene-overlay {
+    /* Reduce background gradient complexity on very small screens */
+    background: #000000;
   }
 }
 

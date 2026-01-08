@@ -40,6 +40,8 @@
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
 
+		<!-- Database dependencies - uncomment when setting up MySQL on Railway -->
+		<!--
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -50,6 +52,7 @@
 			<artifactId>mysql-connector-j</artifactId>
 			<scope>runtime</scope>
 		</dependency>
+		-->
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

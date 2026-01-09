@@ -518,19 +518,29 @@ function init3DLogo() {
   const container = document.getElementById('logo-3d-container');
   if (!container) return;
 
+  // Detect mobile/tablet devices
+  const isMobile = window.innerWidth <= 768;
+
   // Check if background logo already exists
   const existingBgCanvas = document.querySelector('canvas[data-bg-logo="true"]');
   let bgScene, bgCamera, bgRenderer, backgroundLogo;
   
-  if (!existingBgCanvas) {
-    // First time - create background scene
+  // Skip background logo on mobile for better performance
+  if (!existingBgCanvas && !isMobile) {
+    // First time - create background scene (desktop only)
     console.log('🎨 Creating background logo for the first time');
     
     bgScene = new THREE.Scene();
     bgCamera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    bgRenderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    // Disable antialiasing on mobile for better performance
+    bgRenderer = new THREE.WebGLRenderer({ 
+      alpha: true, 
+      antialias: true,
+      powerPreference: 'high-performance'
+    });
     
     bgRenderer.setSize(window.innerWidth, window.innerHeight);
+    bgRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Cap pixel ratio
     bgRenderer.setClearColor(0x000000, 0);
     bgRenderer.domElement.style.position = 'fixed';
     bgRenderer.domElement.style.top = '0';
@@ -560,13 +570,19 @@ function init3DLogo() {
     persistentBgRenderer = bgRenderer;
     persistentBgScene = bgScene;
     persistentBgCamera = bgCamera;
-  } else {
-    // Reuse existing background
+  } else if (existingBgCanvas && !isMobile) {
+    // Reuse existing background (desktop only)
     console.log('✅ Background logo already exists, reusing it');
     bgScene = persistentBgScene;
     bgCamera = persistentBgCamera;
     bgRenderer = persistentBgRenderer;
     backgroundLogo = persistentBackgroundLogo;
+  } else {
+    // Mobile: no background logo
+    bgScene = null;
+    bgCamera = null;
+    bgRenderer = null;
+    backgroundLogo = null;
   }
 
   // Main scene setup
@@ -594,11 +610,19 @@ function init3DLogo() {
   }
   
   const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000); // Aspect ratio 1:1
-  const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+  // Optimize renderer settings for mobile
+  const renderer = new THREE.WebGLRenderer({ 
+    alpha: true, 
+    antialias: !isMobile, // Disable antialiasing on mobile for performance
+    powerPreference: 'high-performance',
+    stencil: false,
+    depth: true
+  });
   
   // Set renderer size to match container
   renderer.setSize(finalSize, finalSize);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Cap pixel ratio for performance
+  // Cap pixel ratio on mobile for better performance
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1.5 : 2));
   renderer.setClearColor(0x000000, 0);
   
   // Center the canvas element with CSS
@@ -744,8 +768,8 @@ function init3DLogo() {
     logo.position.set(0, 0, 0);
     scene.add(logo);
     
-    // Only create background logo if it doesn't exist yet
-    if (!persistentBackgroundLogo) {
+    // Only create background logo if it doesn't exist yet and not on mobile
+    if (!persistentBackgroundLogo && !isMobile && bgScene) {
       console.log('🎨 Creating background logo');
       
       // Clone for background logo (full screen)
@@ -1003,13 +1027,14 @@ function init3DLogo() {
     }
   }
 
-  // Handle window resize for background (only add once)
-  if (!existingBgCanvas) {
+  // Handle window resize for background (only add once, desktop only)
+  if (!existingBgCanvas && !isMobile) {
     window.addEventListener('resize', () => {
-      if (persistentBgCamera && persistentBgRenderer) {
+      if (persistentBgCamera && persistentBgRenderer && !isMobile) {
         persistentBgCamera.aspect = window.innerWidth / window.innerHeight;
         persistentBgCamera.updateProjectionMatrix();
         persistentBgRenderer.setSize(window.innerWidth, window.innerHeight);
+        persistentBgRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
       }
     });
   }
@@ -1044,8 +1069,22 @@ function init3DLogo() {
     }, 100);
   });
 
-  // Animation loop
-  function animate() {
+  // Animation loop with mobile optimization
+  let lastFrameTime = 0;
+  const targetFPS = isMobile ? 30 : 60; // Lower FPS on mobile
+  const frameInterval = 1000 / targetFPS;
+  
+  function animate(currentTime) {
+    // Throttle animation on mobile for better performance
+    if (isMobile) {
+      const deltaTime = currentTime - lastFrameTime;
+      if (deltaTime < frameInterval) {
+        requestAnimationFrame(animate);
+        return;
+      }
+      lastFrameTime = currentTime - (deltaTime % frameInterval);
+    }
+    
     requestAnimationFrame(animate);
     
     if (logo) {
@@ -1122,12 +1161,19 @@ function init3DLogo() {
       }
     }
     
-    // Render both scenes
-    bgRenderer.render(bgScene, bgCamera);
+    // Render scenes (skip background on mobile)
+    if (bgRenderer && bgScene && bgCamera && !isMobile) {
+      bgRenderer.render(bgScene, bgCamera);
+    }
     renderer.render(scene, camera);
+    
+    // Continue animation loop (handled at start of function)
+    if (!isMobile) {
+      // Desktop: already called requestAnimationFrame at start
+    }
   }
   
-  animate();
+  animate(0);
 }
 
 function initAboutPage() {
@@ -2398,12 +2444,22 @@ function initAmbientParticles() {
     return;
   }
 
+  // Detect mobile/tablet devices
+  const isMobile = window.innerWidth <= 768;
+  
+  // Disable particles on mobile for better performance
+  if (isMobile) {
+    console.log('📱 Mobile detected - disabling ambient particles for performance');
+    return;
+  }
+
   // Create particle container
   const particleContainer = document.createElement('div');
   particleContainer.className = 'particle-background';
   document.body.prepend(particleContainer);
 
-  const particleCount = 100;
+  // Reduced particle count for better performance
+  const particleCount = 60; // Reduced from 100
   const colors = [
     'rgba(233, 30, 99, 0.8)',     // Primary Pink - main brand
     'rgba(248, 187, 217, 0.7)',   // Light Pink - soft
@@ -2475,8 +2531,20 @@ function initAmbientParticles() {
     targetMouseY = (e.clientY / window.innerHeight) * 2 - 1;
   });
 
-  // Smooth animation function
-  function animateParticles() {
+  // Smooth animation function with performance optimizations
+  let lastFrameTime = 0;
+  const targetFPS = 60;
+  const frameInterval = 1000 / targetFPS;
+  
+  function animateParticles(currentTime) {
+    // Throttle to target FPS for better performance
+    const deltaTime = currentTime - lastFrameTime;
+    if (deltaTime < frameInterval) {
+      requestAnimationFrame(animateParticles);
+      return;
+    }
+    lastFrameTime = currentTime - (deltaTime % frameInterval);
+
     // Smooth mouse tracking (lerp)
     mouseX += (targetMouseX - mouseX) * 0.1;
     mouseY += (targetMouseY - mouseY) * 0.1;
@@ -2485,7 +2553,7 @@ function initAmbientParticles() {
     const time = Date.now() * 0.0005; // Same timing as the logo
     const rotationAngle = Math.sin(time) * 1.047; // -60° to 60° oscillation (same as logo)
 
-    // Update particle positions
+    // Update particle positions (batch DOM updates for better performance)
     particles.forEach(particle => {
       // More dramatic rotational movement with individual phase offsets
       const particleAngle = rotationAngle + particle.phase;
@@ -2507,8 +2575,8 @@ function initAmbientParticles() {
       particle.currentX += (targetX - particle.currentX) * 0.15;
       particle.currentY += (targetY - particle.currentY) * 0.15;
 
-      // Update particle position
-      particle.element.style.transform = `translate(${particle.currentX}px, ${particle.currentY}px)`;
+      // Update particle position (use will-change for GPU acceleration)
+      particle.element.style.transform = `translate3d(${particle.currentX}px, ${particle.currentY}px, 0)`;
     });
 
     requestAnimationFrame(animateParticles);

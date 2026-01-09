@@ -1995,6 +1995,22 @@ section {
   filter: blur(1px);
   will-change: transform;
   box-shadow: 0 0 20px currentColor, 0 0 40px currentColor, 0 0 60px currentColor;
+  /* GPU acceleration for smoother animations */
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* Disable particles on mobile for better performance */
+@media (max-width: 768px) {
+  .particle-background {
+    display: none !important;
+  }
+  
+  .ambient-particle {
+    display: none !important;
+  }
 }
 
 /* Subtle floating animation */
